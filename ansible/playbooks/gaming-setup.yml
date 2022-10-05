@@ -1,0 +1,32 @@
+---
+- name: Gaming setup. 
+  hosts: 127.0.0.1
+  tasks:
+
+  - name: "Setup gaming desktop."
+    block:
+
+      - name: Install Lutris.
+        raw: "add-apt-repository ppa:lutris-team/lutris && apt update && apt install lutris -y"
+        become: yes
+
+      # LOL installation tutorial https://www.youtube.com/watch?v=U_M34Cp-RX0&ab_channel=RBGameslinux
+      - name: Configure machine for League of Legends
+        raw: apt install zenity openssl -y && pkexec sh -c 'echo "abi.vsyscall32 = 0" >> /etc/sysctl.conf && sysctl -p'
+        become: yes
+
+      - name: finished.
+        raw: "echo finished"
+
+    rescue:
+
+      - name: rescue.
+        raw: "echo rescue"
+
+    always:
+    
+      - name: done.
+        raw: "echo done"
+
+
+        
