@@ -4,8 +4,9 @@
   become: true
   tasks:
 
-  - name: Setup everything needed for local development.
+  - name: "Setup local desktop development."
     block:
+
       - name: Install Packages
         apt:
           name: "{{item}}"
@@ -19,10 +20,15 @@
           - awscli
           - terminator
 
+      - name: echo1
+        raw: "echo 1"
+
     rescue:
-      debug:
-        msg: "Task - {{ ansible_failed_task }} failed with error {{ ansible_failed_result }}"
+
+      - name: echo2
+        raw: "echo 2"
 
     always:
-      debug:
-        msg: "Done!"
+    
+      - name: echo3
+        raw: "echo 3"

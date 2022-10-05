@@ -6,4 +6,4 @@
 2. Run playbook `ansible-playbook [-e "var1=1 var2=2"] playbooks/playbook.yml`
 
 ### Examples
-- `ansible-playbook playbooks/desktop-setup.yml`
+- `ansible-playbook ansible/playbooks/desktop-setup.yml`
