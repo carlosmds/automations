@@ -3,7 +3,7 @@
 
 1. Run setup `./setup.sh`
 
-2. Run playbook `ansible-playbook [-e "var1=1 var2=2"] playbooks/playbook.yml`
+2. Run playbook `sudo ansible-playbook [-e "var1=1 var2=2"] playbooks/playbook.yml`
 
 ### Examples
-- `ansible-playbook ansible/playbooks/desktop-setup.yml`
+- `sudo ansible-playbook ansible/playbooks/desktop-setup.yml`
