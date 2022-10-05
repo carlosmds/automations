@@ -1,18 +1,23 @@
 ---
 - name: Desktop setup. 
   hosts: 127.0.0.1
-  become: true
+  vars_prompt:
+    - name: user_email
+      prompt: What is your email? Will be used on your SSH key.
+      private: no
   tasks:
 
   - name: "Setup local desktop development."
     block:
 
       - name: Install apt Packages
+        become: yes
         apt:
           name: "{{item}}"
           state: present
           update_cache: yes
         loop:
+          - build-essential
           - gnupg-agent
           - software-properties-common
           - net-tools
@@ -22,27 +27,49 @@
           - vim
           - gnome-tweaks
           - gnome-shell-extension*
+          - make
+          - libssl-dev
+          - zlib1g-dev
+          - libbz2-dev
+          - libreadline-dev
+          - libsqlite3-dev
+          - wget
+          - curl 
+          - llvm
+          - libncursesw5-dev
+          - xz-utils
+          - tk-dev
+          - libxml2-dev
+          - libxmlsec1-dev
+          - libffi-dev
+          - liblzma-dev
 
-      - name: Install pyenv
+      - name: Install Pyenv
         raw: "curl https://pyenv.run | bash"
         ignore_errors: yes
 
       - name: Configure Pyenv
         raw: grep pyenv ~/.bashrc || (echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && echo 'eval "$(pyenv init -)"' >> ~/.bashrc && echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc && exec $SHELL)
-        become: no
 
-      - name: echo1
-        raw: "echo 1"
+      - name: Generate git ssh-key.
+        raw: "ssh-keygen -q -t ed25519 -C {{ user_email }} -N '' -f ~/.ssh/id_ed25519" 
+        ignore_errors: yes
+
+      - name: Configure ssh-key.
+        raw: "chmod 700 ~/.ssh/* && eval $(ssh-agent -s) && ssh-add ~/.ssh/id_ed25519"
+
+      - name: finished.
+        raw: "echo finished"
 
     rescue:
 
-      - name: echo2
-        raw: "echo 2"
+      - name: rescue.
+        raw: "echo rescue"
 
     always:
     
-      - name: echo3
-        raw: "echo 3"
+      - name: done.
+        raw: "echo done"
 
 
         
