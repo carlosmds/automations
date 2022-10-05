@@ -1,0 +1,28 @@
+---
+- name: Desktop setup. 
+  hosts: 127.0.0.1
+  become: true
+  tasks:
+
+  - name: Setup everything needed for local development.
+    block:
+      - name: Install Packages
+        apt:
+          name: "{{item}}"
+          state: present
+          update_cache: yes
+        loop:
+          - gnupg-agent
+          - software-properties-common
+          - net-tools
+          - unzip
+          - awscli
+          - terminator
+
+    rescue:
+      debug:
+        msg: "Task - {{ ansible_failed_task }} failed with error {{ ansible_failed_result }}"
+
+    always:
+      debug:
+        msg: "Done!"
