@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt update && sudo apt install curl 
+sudo apt update && sudo apt install curl python3 python3-distutils python3-apt
 
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3 get-pip.py --user && rm -rf get-pip.py
