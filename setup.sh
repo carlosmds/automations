@@ -1,11 +1,8 @@
 #!/bin/bash
 
-sudo apt update && sudo apt install curl python3 python3-distutils python3-apt
+sudo apt update && sudo apt install curl python3 python3-distutils python3-apt python3-pip
 
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
-    && sudo python3 get-pip.py && rm -rf get-pip.py
-
-sudo python3 -m pip -V && sudo python3 -m pip install ansible boto3 botocore
+sudo python3 -m pip -V && sudo python3 -m pip install ansible boto3 botocore --break-system-packages
 
 sudo apt-add-repository ppa:ansible/ansible \
     && sudo apt update && sudo apt install ansible -y
