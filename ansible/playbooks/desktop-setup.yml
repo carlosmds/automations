@@ -1,17 +1,19 @@
 ---
 - name: Desktop setup. 
   hosts: 127.0.0.1
+  become: true
   vars_prompt:
     - name: user_email
-      prompt: What is your email? Will be used on your SSH key.
-      private: no
+      prompt: "Enter e-mail for your SSH key. Leave empty to skip."
+      private: false
   tasks:
 
   - name: "Setup local desktop development."
+    become: false
     block:
 
       - name: Install apt Packages
-        become: yes
+        become: true
         apt:
           name: "{{item}}"
           state: present
@@ -43,20 +45,50 @@
           - libxmlsec1-dev
           - libffi-dev
           - liblzma-dev
+          - file
+          - git
+          - which
+          - zip
 
       - name: Install Pyenv
-        raw: "curl https://pyenv.run | bash"
-        ignore_errors: yes
+        raw: "pyenv --version || (curl https://pyenv.run | bash)"
 
       - name: Configure Pyenv
         raw: grep pyenv ~/.bashrc || (echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc && echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && echo 'eval "$(pyenv init -)"' >> ~/.bashrc && echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc && exec $SHELL)
 
+      - name: Install NVM
+        raw: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
       - name: Generate git ssh-key.
         raw: "ssh-keygen -q -t ed25519 -C {{ user_email }} -N '' -f ~/.ssh/id_ed25519" 
-        ignore_errors: yes
+        when: user_email != ""
 
       - name: Configure ssh-key.
         raw: "chmod 700 ~/.ssh/* && eval $(ssh-agent -s) && ssh-add ~/.ssh/id_ed25519"
+        when: user_email != ""
+
+      - name: Install Docker
+        become: true
+        raw: "curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && rm get-docker.sh"
+
+      - name: Docker post-install steps
+        become: true
+        raw: "(getent group docker || groupadd docker) && usermod -aG docker {{ ansible_user_id }} && systemctl enable docker.service && systemctl enable containerd.service"
+
+      - name: Install Docker Compose
+        become: true
+        raw: "curl -SL https://github.com/docker/compose/releases/download/v2.18.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose && docker-compose --version"
+
+      - name: Install kubectl with snap
+        become: true
+        raw: "snap install kubectl --classic && kubectl version --client"
+
+      - name: Install aws-cli
+        become: true
+        raw: curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip -o awscliv2.zip && ./aws/install --update && rm -rf awscliv2.zip aws
+
+      - name: Install Flutter
+        raw: "apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev && snap install flutter --classic && flutter doctor"
 
       - name: finished.
         raw: "echo finished"

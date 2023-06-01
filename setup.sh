@@ -1,5 +1,7 @@
 #!/bin/bash
 
+### OUTDATED ###
+
 sudo apt update && sudo apt install curl python3 python3-distutils python3-apt python3-pip
 
 sudo python3 -m pip -V && sudo python3 -m pip install ansible boto3 botocore --break-system-packages
